@@ -9,12 +9,25 @@ const App = () => {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [title, setTitle] = useState("선택하세요");
   const [contents, setContents] = useState("");
+  const [category, setCategory] = useState("선택하세요");
   const options = ["선택하세요", "강의", "과제", "운동"];
   const [todos, setTodos] = useState([
     {
       id: nanoid(),
+      title: "강의",
+      contents: "심화주차 완강하기",
+      likes: 0,
+    },
+    {
+      id: nanoid(),
       title: "과제",
-      contents: "정예반 과제 하기",
+      contents: "정예반 과제하기",
+      likes: 0,
+    },
+    {
+      id: nanoid(),
+      title: "운동",
+      contents: "유산소 30분 하기",
       likes: 0,
     },
   ]);
@@ -44,6 +57,10 @@ const App = () => {
     }
   };
 
+  const handleCategory = (event) => {
+    setCategory(event.target.value);
+  };
+
   const handleLikeButton = (id) => {
     const updatedLikeTodos = todos.map((todo) => {
       if (todo.id === id) {
@@ -61,6 +78,11 @@ const App = () => {
     setTodos(newTodo);
   };
 
+  let filterdTodos = todos.filter((todo) => todo.title === category);
+  if (category === "선택하세요") {
+    filterdTodos = todos;
+  }
+
   return (
     <>
       <Layout>
@@ -74,7 +96,7 @@ const App = () => {
           <Layout>
             <h1>Daily Todo List</h1>
           </Layout>
-          <Layout>
+          <InputContainer>
             <InputItem>
               <label>주제</label> &nbsp;
               <select value={title} onChange={handleTitle}>
@@ -90,36 +112,51 @@ const App = () => {
               <input type="text" value={contents} onChange={handleContents} />
             </InputItem>
             <button onClick={handleAddButton}>추가하기</button>
-          </Layout>
-          {todos.map((todo) => (
-            <TodoCantainer
-              style={
-                isDarkMode
-                  ? { border: "2px solid white" }
-                  : { border: "2px solid black" }
-              }
-            >
-              <TodoHeader>
-                <div>주제 : {todo.title}</div>
-                <div>
-                  <span>{todo.likes}</span>
-                  <StButton
-                    onClick={() => handleLikeButton(todo.id)}
-                    style={isDarkMode ? { color: "white" } : { color: "black" }}
-                  >
-                    Like
-                  </StButton>
-                  <StButton
-                    onClick={() => handleDeleteButton(todo.id)}
-                    style={isDarkMode ? { color: "white" } : { color: "black" }}
-                  >
-                    X
-                  </StButton>
-                </div>
-              </TodoHeader>
-              <div>내용 : {todo.contents}</div>
-            </TodoCantainer>
-          ))}
+          </InputContainer>
+          <div style={{ marginLeft: "20px" }}>
+            <select value={category} onChange={handleCategory}>
+              {options.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </div>
+          <TodoContainer>
+            {filterdTodos.map((todo) => (
+              <TodoCard
+                style={
+                  isDarkMode
+                    ? { border: "2px solid white" }
+                    : { border: "2px solid black" }
+                }
+              >
+                <TodoHeader>
+                  <div>주제 : {todo.title}</div>
+                  <div>
+                    <span>{todo.likes}</span>
+                    <StButton
+                      onClick={() => handleLikeButton(todo.id)}
+                      style={
+                        isDarkMode ? { color: "white" } : { color: "black" }
+                      }
+                    >
+                      Like
+                    </StButton>
+                    <StButton
+                      onClick={() => handleDeleteButton(todo.id)}
+                      style={
+                        isDarkMode ? { color: "white" } : { color: "black" }
+                      }
+                    >
+                      X
+                    </StButton>
+                  </div>
+                </TodoHeader>
+                <div>내용 : {todo.contents}</div>
+              </TodoCard>
+            ))}
+          </TodoContainer>
         </Container>
       </Layout>
     </>
@@ -168,11 +205,26 @@ const StButton = styled.button`
   background-color: transparent;
 `;
 
+const InputContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  margin-bottom: 20px;
+`;
+
 const InputItem = styled.div`
   margin: 10px;
 `;
 
-const TodoCantainer = styled.div`
+const SelectBox = styled.select`
+  float: right;
+  margin: 20px;
+`;
+const TodoContainer = styled.div`
+  margin-top: 10px;
+`;
+const TodoCard = styled.div`
   margin: 20px;
   padding: 10px;
   justify-content: space-between;
